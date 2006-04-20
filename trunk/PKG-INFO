@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
 Name: dia-tss
-Version: 2.2.0pre2
-Summary: UNKNOWN
-Home-page: UNKNOWN
-Author: UNKNOWN
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
-Platform: UNKNOWN
+Version: 0.1 alpha
+Summary: Alpha release
+Home-page: http://dia-tss.berlios.de/
+Author: Oliver Kriehn, Daniel Esser
+Author-email: olzzen@users.berlios.de, desser@users.berlios.de
+License: GPL
+Description: Separates text strings from mixed text/graphics images
+Platform: Plattform Independent
