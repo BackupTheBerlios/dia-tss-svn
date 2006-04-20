@@ -1,5 +1,5 @@
-#ifndef skeleton_fill_white
-#define skeleton_fill_white
+#ifndef dia-tss_fill_white
+#define dia-tss_fill_white
 
 #include "gamera.hpp"
 

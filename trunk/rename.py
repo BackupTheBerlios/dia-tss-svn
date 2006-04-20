@@ -27,7 +27,7 @@ def rename_files(change_to, dirname, names):
             print "Renaming %s to %s" % (full_path, join(dirname, new_name))
             rename(full_path, join(dirname, new_name))
 
-change_from = 'skeleton'
+change_from = 'dia-tss'
 change_to = argv[-1].lower()
 print "Changing name of toolkit project to '%s'." % change_to
 walk(".", change_content, change_to)

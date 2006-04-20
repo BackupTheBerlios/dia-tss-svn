@@ -1,11 +1,11 @@
 ================================
-Overview of the skeleton toolkit
+Overview of the dia-tss toolkit
 ================================
 
 This is just an example
 '''''''''''''''''''''''
 
-This document is a high-level overview of the skeleton toolkit, that
+This document is a high-level overview of the dia-tss toolkit, that
 you will eventually want to replace with documentation of your own.
 
 It's a good idea in the narrative documentation to provide a link to
@@ -59,7 +59,7 @@ Documentation generation script
 
 A small script is required that loads the toolkits' plugins and then
 calls out to the Gamera documentation system.  The example
-documentation generation script included in the skeleton toolkit
+documentation generation script included in the dia-tss toolkit
 example is as follows:
 
 .. code:: Python
@@ -76,10 +76,10 @@ example is as follows:
       # If the plugins are not already installed, we'll just ignore
       # them and generate the narrative documentation.
       try:
-         from gamera.toolkits.skeleton.plugins import clear
+         from gamera.toolkits.dia-tss.plugins import clear
       except ImportError:
          print "WARNING:"
-         print "This `skeleton` toolkit must be installed before generating"
+         print "This `dia-tss` toolkit must be installed before generating"
          print "the documentation.  For now, the system will skip generating"
          print "documentation for the plugins."
          print
