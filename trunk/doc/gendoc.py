@@ -10,10 +10,10 @@ if __name__ == '__main__':
    # If the plugins are not already installed, we'll just ignore
    # them and generate the narrative documentation.
    try:
-      from gamera.toolkits.dia-tss.plugins import clear
+      from gamera.toolkits.tss.plugins import clear
    except ImportError:
       print "WARNING:"
-      print "This `dia-tss` toolkit must be installed before generating"
+      print "This `tss` toolkit must be installed before generating"
       print "the documentation.  For now, the system will skip generating"
       print "documentation for the plugins."
       print

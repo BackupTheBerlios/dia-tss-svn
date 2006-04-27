@@ -7,7 +7,7 @@ from distutils.core import setup, Extension
 from gamera import gamera_setup
 
 # This constant should be the name of the toolkit
-TOOLKIT_NAME = "dia-tss"
+TOOLKIT_NAME = "tss"
 
 # ----------------------------------------------------------------------------
 # You should not usually have to edit anything below, but it is
@@ -27,4 +27,4 @@ plugin_extensions = gamera_setup.generate_plugins(plugins, PLUGIN_PACKAGE)
 setup(name=TOOLKIT_NAME, version="2.2.0pre2",
       ext_modules = plugin_extensions,
       packages = [PACKAGE, PLUGIN_PACKAGE],
-      scripts = ['scripts/dia-tss'])
+      scripts = ['scripts/tss'])
