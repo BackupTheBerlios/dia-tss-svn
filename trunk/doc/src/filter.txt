@@ -1,0 +1,68 @@
+
+Filter
+======
+
+``area_ratio_filter``
+---------------------
+
+[object] **area_ratio_filter** ([object *ccs*])
+
+
+:Operates on: ``Image`` [OneBit|GreyScale|Grey16|RGB|Float|Complex]
+:Returns: [object]
+:Category: Filter
+:Defined in: TextStringSep.py
+:Author: Your name here
+
+
+Discard larger graphics in order to restrict processing to components which are candidates for members of text strings
+
+
+``col_comp_grouping``
+---------------------
+
+[object] **col_comp_grouping** ()
+
+
+:Operates on: [object]
+:Returns: [object]
+:Category: Filter
+:Defined in: TextStringSep.py
+:Author: Your name here
+
+
+ Beschreibung 
+
+
+``hough_transform``
+-------------------
+
+[tuple] **hough_transform** ()
+
+
+:Operates on: [object]
+:Returns: [tuple]
+:Category: Filter
+:Defined in: TextStringSep.py
+:Author: Your name here
+
+
+ Beschreibung 
+
+
+``textStringSep``
+-----------------
+
+``Image`` [OneBit] **textStringSep** ()
+
+
+:Operates on: ``Image`` [OneBit]
+:Returns: ``Image`` [OneBit]
+:Category: Filter
+:Defined in: TextStringSep.py
+:Author: Your name here
+
+
+Separates text strings from mixed text/graphics images
+
+

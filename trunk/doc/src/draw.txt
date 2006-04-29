@@ -1,0 +1,19 @@
+
+Draw
+====
+
+``clear``
+---------
+
+**clear** ()
+
+
+:Operates on: ``Image`` [OneBit|GreyScale|Grey16|Float|RGB]
+:Category: Draw
+:Defined in: clear.py
+:Author: Your name here
+
+
+Fills the entire image with white.
+
+

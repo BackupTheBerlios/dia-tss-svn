@@ -1,0 +1,81 @@
+=======
+Plugins
+=======
+
+By categories
+-------------
+
+- Draw_
+
+  - clear_
+
+- File_
+
+  - PNG_info_
+
+  - load_PNG_
+
+  - load_tiff_
+
+  - save_PNG_
+
+  - save_tiff_
+
+  - tiff_info_
+
+- Filter_
+
+  - area_ratio_filter_
+
+  - col_comp_grouping_
+
+  - hough_transform_
+
+  - textStringSep_
+
+Alphabetical
+-------------
+
+
+**A**
+
+area_ratio_filter_
+
+**C**
+
+clear_, col_comp_grouping_
+
+**H**
+
+hough_transform_
+
+**L**
+
+load_PNG_, load_tiff_
+
+**P**
+
+PNG_info_
+
+**S**
+
+save_PNG_, save_tiff_
+
+**T**
+
+textStringSep_, tiff_info_
+
+.. _Draw: draw.html#draw
+.. _clear: draw.html#clear
+.. _File: file.html#file
+.. _PNG_info: file.html#png-info
+.. _load_PNG: file.html#load-png
+.. _load_tiff: file.html#load-tiff
+.. _save_PNG: file.html#save-png
+.. _save_tiff: file.html#save-tiff
+.. _tiff_info: file.html#tiff-info
+.. _Filter: filter.html#filter
+.. _area_ratio_filter: filter.html#area-ratio-filter
+.. _col_comp_grouping: filter.html#col-comp-grouping
+.. _hough_transform: filter.html#hough-transform
+.. _textStringSep: filter.html#textstringsep
