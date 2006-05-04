@@ -15,6 +15,7 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 from gamera.plugin import *
+import _TextStringSep
 
 class textStringSep(PluginFunction):
     """Separates text strings from mixed text/graphics images"""
@@ -30,10 +31,16 @@ class textStringSep(PluginFunction):
 class area_ratio_filter(PluginFunction):
     """Discard larger graphics in order to restrict processing to components which are candidates for members of text strings"""
     category = "Filter"
-    return_type = ImageList("ccssmall")
-    args = Args( [ImageList("ccs")] )
+    selt_type = ImageType([ONEBIT])
+    return_type = ImageList("ccs")
     pure_python = 1
-    def __call__(self, ccs):
+    def __call__(self):
+        print(" - Starting Area/Ratio-Filter")
+
+        print(" |--CC Analysis" )
+        ccs = self.cc_analysis()
+
+        print( "|--
         return ccs
     __call__ = staticmethod(__call__)
 

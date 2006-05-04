@@ -9,13 +9,12 @@ This module is not strictly necessary.
 
 from time import sleep
 from sys import stdout
+from gamera.core import *
+
 
 def main():
-    """This is a top-level function for the toolkit.  It doesn't
-really do anything..."""
-    stdout.write("Processing (well, not really...)")
-    for i in range(5):
-        stdout.write(".")
-        stdout.flush()
-        sleep(1)
-
+    init_gamera()
+    from gamera.toolkits import tss
+    image0 = load_image(r"/home/pragma/Bilder/Document Imaga Analysys/230 hub diag.png")
+    onebit0 = image0.to_onebit()
+    onebit0.area_ratio_filter()
