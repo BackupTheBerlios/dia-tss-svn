@@ -15,7 +15,7 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 from gamera.plugin import *
-import _TextStringSep
+import _TextStringSep #import c++ side of the plugin
 
 class textStringSep(PluginFunction):
     """Separates text strings from mixed text/graphics images"""
@@ -37,10 +37,9 @@ class area_ratio_filter(PluginFunction):
     def __call__(self):
         print(" - Starting Area/Ratio-Filter")
 
-        print(" |--CC Analysis" )
+        print " |--CC Analysis"
         ccs = self.cc_analysis()
 
-        print( "|--
         return ccs
     __call__ = staticmethod(__call__)
 
@@ -57,9 +56,12 @@ class col_comp_grouping(PluginFunction):
 
 
 class hough_transform(PluginFunction):
-    """ Beschreibung """
+    """ Performs the Hough-Transformation for each given point"""
     category = "Filter"
-    self_type = ImageList("ccs")
+    self_type = ImageList("ccsImageList")
+# hier sollte eigentlich ein PointVector an die Funktion uebergeben werden
+# dieser wird dann durchgearbeitet, und ein entsprechender PointVector wird geliefert
+#    args = Args([PointVector("ccsPointVector")])
     return_type = Class("ht",tuple,True)
 
 class TextStringSepModule(PluginModule):

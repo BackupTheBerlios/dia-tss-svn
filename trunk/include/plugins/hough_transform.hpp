@@ -5,11 +5,6 @@
 
 namespace Gamera {
 
-  /* This is a very simple plugin that simply fills the image with white
-
-     See the Gamera plugin documentation for more information on how to
-     write Gamera plugins.
-   */
     template<class T>
     PyObject* hough_transform(T& image) {
         PyObject* pyList = PyList_New(10);
