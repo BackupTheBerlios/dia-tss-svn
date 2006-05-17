@@ -5,7 +5,7 @@ Filter
 ``area_ratio_filter``
 ---------------------
 
-[object] **area_ratio_filter** ([object *ccs*])
+[object] **area_ratio_filter** ()
 
 
 :Operates on: ``Image`` [OneBit|GreyScale|Grey16|RGB|Float|Complex]

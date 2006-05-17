@@ -24,6 +24,11 @@ class textStringSep(PluginFunction):
     return_type = ImageType([ONEBIT])
     pure_python = 1 
     def __call__(self):
+        H_ws = average height
+
+        R = 0.2 * H_ws
+
+    
         return null
     __call__ = staticmethod(__call__)
 
@@ -38,7 +43,46 @@ class area_ratio_filter(PluginFunction):
         print(" - Starting Area/Ratio-Filter")
 
         print " |--CC Analysis"
+        '''Connected Component Analysis'''
         ccs = self.cc_analysis()
+
+
+        ccs_size = []
+        for i in ccs:
+            ccs_size.append( (i.nrows * i.ncols, i)  )
+            
+        ccs_size.sort() # Wie wird hier sortiert?
+
+
+        '''calc arithmetical median of the area'''
+        length = len(ccs)        
+        avg_area = 0        
+        for i in ccs_size:
+            avg_area += i[0]
+        
+        avg_area /= length
+
+        '''discard larger graphics'''
+        for cct in ccs_size:
+            if cct[0] > (avg_area*5):
+                cct[1].fill_white()
+
+        '''calc histogram'''
+#        max_distance = 
+#        max_ratio
+
+ 
+#        if (length % 2) == 0:
+#            avg_area = length / 2
+#        else:
+#            avg_area = (length+1) / 2
+
+       
+
+        print avg_area
+        print "erstes Element: ", ccs_size[0]
+        print "letztes Element: ", ccs_size[ len(ccs_size)-1 ]
+        
 
         return ccs
     __call__ = staticmethod(__call__)
