@@ -16,6 +16,7 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 from gamera.plugin import *
 import _TextStringSep #import c++ side of the plugin
+import array
 
 class textStringSep(PluginFunction):
     """Separates text strings from mixed text/graphics images"""
@@ -24,9 +25,9 @@ class textStringSep(PluginFunction):
     return_type = ImageType([ONEBIT])
     pure_python = 1 
     def __call__(self):
-        H_ws = average height
+#        H_ws = average height
 
-        R = 0.2 * H_ws
+#        R = 0.2 * H_ws
 
     
         return null
@@ -82,6 +83,9 @@ class area_ratio_filter(PluginFunction):
         print avg_area
         print "erstes Element: ", ccs_size[0]
         print "letztes Element: ", ccs_size[ len(ccs_size)-1 ]
+
+        testFloatImage = hough_transform( ccs )
+        testFloatImage.display()
         
 
         return ccs
@@ -95,18 +99,19 @@ class col_comp_grouping(PluginFunction):
     return_type = ImageList("ccs")
     pure_python = 1
     def __call__(self):
-        return null
+        return None
     __call__ = staticmethod(__call__)
 
 
 class hough_transform(PluginFunction):
-    """ Performs the Hough-Transformation for each given point"""
+    """ Performs the Hough-Transformation for each centroid of an Image in the given ImageList"""
     category = "Filter"
-    self_type = ImageList("ccsImageList")
-# hier sollte eigentlich ein PointVector an die Funktion uebergeben werden
-# dieser wird dann durchgearbeitet, und ein entsprechender PointVector wird geliefert
-#    args = Args([PointVector("ccsPointVector")])
-    return_type = Class("ht",tuple,True)
+    self_type = None
+    args = Args( [ImageList("ccsImageList"), FloatVector("angleRange"), Int("r"), Float("t_precision"), Int("orgX"), Int("orgY")] )
+    return_type = ImageType( [FLOAT] )
+    def __call__( ccsImageList, angleRange = array.array( 'f', [0.0, 360.0] ), r = 1, t_precision = 1.0, orgX = 0, orgY = 0 ):
+        return _TextStringSep.hough_transform(ccsImageList, angleRange, r, t_precision, orgX, orgY)
+    __call__ = staticmethod(__call__)
 
 class TextStringSepModule(PluginModule):
     category = "Tss"
@@ -118,5 +123,5 @@ class TextStringSepModule(PluginModule):
 
 module = TextStringSepModule()
 #col_comp_grouping = col_comp_grouping()
-#hough_transform = hough_transform()
+hough_transform = hough_transform()
 area_ratio_filter = area_ratio_filter()
