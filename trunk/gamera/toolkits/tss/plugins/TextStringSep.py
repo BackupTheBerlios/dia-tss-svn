@@ -78,13 +78,9 @@ class area_ratio_filter(PluginFunction):
 #        else:
 #            avg_area = (length+1) / 2
 
-       
-
         print avg_area
-        print "erstes Element: ", ccs_size[0]
-        print "letztes Element: ", ccs_size[ len(ccs_size)-1 ]
 
-        testFloatImage = hough_transform( ccs )
+        testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], 1, 0.3, self.ncols, self.nrows )
         testFloatImage.display()
         
 
@@ -104,7 +100,14 @@ class col_comp_grouping(PluginFunction):
 
 
 class hough_transform(PluginFunction):
-    """ Performs the Hough-Transformation for each centroid of an Image in the given ImageList"""
+    """ Performs the Hough-Transformation for each centroid of an Image in the given ImageList
+hough_transform( ImageVector &imgVec, FloatVector *angleRange, int r, float t_precision, int orgX, int orgY )
+imgVec = list of ccs
+angleRange = list of angles ( 0.0 <= theta <= 1.0
+r = radius
+t_precision = steps of theta
+orgX = x size of original Image
+orgY = y size of original Image"""
     category = "Filter"
     self_type = None
     args = Args( [ImageList("ccsImageList"), FloatVector("angleRange"), Int("r"), Float("t_precision"), Int("orgX"), Int("orgY")] )

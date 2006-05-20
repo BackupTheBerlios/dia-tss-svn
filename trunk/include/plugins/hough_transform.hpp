@@ -5,22 +5,22 @@
 
 namespace Gamera {
 
-    Image* hough_transform( ImageVector& imgVec, FloatVector *angleRange, int r, float t_precision, int orgX, int orgY ) {
+    Image* hough_transform( ImageVector &imgVec, FloatVector *angleRange, int r, float t_precision, int orgX, int orgY ) {
         typedef TypeIdImageFactory<FLOAT, DENSE> fact_type;
         ImageVector::iterator it = imgVec.begin();
 
-        int resolution = 360 / t_precision;
+        int resolution = (int)( 360 / t_precision );
         
         int x = 0,
             y = 0;
 
         // size for the hough-domain
         int houghX = 360,
-            houghY = sqrt( ( orgX / 2 ) * ( orgX / 2 ) + ( orgY / 2 ) * ( orgY / 2 ) );
+            houghY = orgY;//(int)sqrt( ( orgX / 2 ) * ( orgX / 2 ) + ( orgY / 2 ) * ( orgY / 2 ) );
 
         
-        fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX + 1, houghY + 1 ) );
-        image->resolution( 600 );//theta );
+        fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX + 1, orgY + 1 ) );
+        image->resolution( resolution );
        
         int ranges = 0,
             angleVecSize = 0;
@@ -50,26 +50,26 @@ namespace Gamera {
                 tupleIt++;
                 
                 double endAngle = *tupleIt;
-                double result = 0.0;
-
-                printf( "::::::::::::::::: range = %d - %d\n", startAngle, endAngle );
+                
+                double rTheta = 0.0; // theta in radian
+                int r = 0;
 
                 // calculate
-                for( double i = startAngle; i <= endAngle; i += t_precision ) {
-                    
-                    // a bissl rumgespielt ;-)
+                for( double theta = startAngle; theta <= endAngle; theta += t_precision ) {
 
-                    result = ( y - cc->center().y() * cos( i ) ) + ( x - cc->center().x() * sin( i ) );
+                    // convert degree in radian
+                    rTheta = ( theta * M_PI ) / 180.0;
+                    r = (int)( y - cc->center().y() * cos( rTheta ) ) + ( x - cc->center().x() * sin( rTheta ) );
 
                     // print some values ( for debuging )
-                    printf( "x = %d, y = %d, theta = %6.3f precision = %6.3f result = %10.6f\n", x, y, i, t_precision, result );
+                    printf( "x = %d, y = %d, theta = %6.3f precision = %6.3f result = %d\n", x, y, theta, t_precision, r );
 
-                    if( ( result > 0 ) && ( i <= houghY ) )
-                        image->set( Point( i, result ), 50 );
+                    if( ( r > 0 ) && ( r <= houghY ) ) {
+                        float pixelValue = image->get( Point( theta, r ) );
+                        image->set( Point( theta, r ), ( pixelValue + 10 ) );
+                    }
                 }
             }
-            // till now we want only calculate for one cc
-            break;
         }
         
         return image;
