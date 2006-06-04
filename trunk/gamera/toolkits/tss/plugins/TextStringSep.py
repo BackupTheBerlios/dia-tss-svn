@@ -18,6 +18,35 @@ from gamera.plugin import *
 import _TextStringSep #import c++ side of the plugin
 import array
 
+def calcMax( img ):
+    """Searches for maxima in Hough-Space. When found, stores the pixelvalue and the x/y-coordinates."""
+    max = [(0.0,0,0),(0.0,0,0),(0.0,0,0)]
+    maxima = 0.0
+
+    for x in range(0,5):
+        for y in range(img.nrows):
+            if maxima < img.get((x,y)):
+                maxima = img.get((x, y))
+                max[0] = (maxima, x, y)
+
+    maxima = 0.0
+
+    for x in range(85,95):
+        for y in range(img.nrows):
+            if maxima < img.get((x, y)):
+                maxima = img.get((x, y))
+                max[1] = (maxima, x, y)
+
+    maxima = 0.0
+
+    for x in range(175,180):
+        for y in range(img.nrows):
+            if maxima < img.get((x, y)):
+                maxima = img.get((x, y))
+                max[2] = (maxima, x, y)
+
+    return max
+
 class textStringSep(PluginFunction):
     """Separates text strings from mixed text/graphics images"""
     category = "Filter"
@@ -28,7 +57,6 @@ class textStringSep(PluginFunction):
 #        H_ws = average height
 
 #        R = 0.2 * H_ws
-
     
         return null
     __call__ = staticmethod(__call__)
@@ -41,19 +69,17 @@ class area_ratio_filter(PluginFunction):
     return_type = ImageList("ccs")
     pure_python = 1
     def __call__(self):
-        print(" - Starting Area/Ratio-Filter")
+        print("- Starting Area/Ratio-Filter")
 
-        print " |--CC Analysis"
+        print "|-CC Analysis"
         '''Connected Component Analysis'''
         ccs = self.cc_analysis()
-
 
         ccs_size = []
         for i in ccs:
             ccs_size.append( (i.nrows * i.ncols, i)  )
             
         ccs_size.sort() # Wie wird hier sortiert?
-
 
         '''calc arithmetical median of the area'''
         length = len(ccs)        
@@ -78,11 +104,17 @@ class area_ratio_filter(PluginFunction):
 #        else:
 #            avg_area = (length+1) / 2
 
-        print avg_area
+        print "Average Area: ", avg_area
 
+        print "|--Hough Transformation"
+        '''Perform Hough Transformation'''
         testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], 1, 0.3, self.ncols, self.nrows )
-        testFloatImage.display()
         
+        '''calc maxima in hough-space'''
+        max = calcMax( testFloatImage )
+        print "maxima (pixelvalue, theta, rho):\n", max
+
+        testFloatImage.display()
 
         return ccs
     __call__ = staticmethod(__call__)
@@ -100,14 +132,7 @@ class col_comp_grouping(PluginFunction):
 
 
 class hough_transform(PluginFunction):
-    """ Performs the Hough-Transformation for each centroid of an Image in the given ImageList
-hough_transform( ImageVector &imgVec, FloatVector *angleRange, int r, float t_precision, int orgX, int orgY )
-imgVec = list of ccs
-angleRange = list of angles ( 0.0 <= theta <= 1.0
-r = radius
-t_precision = steps of theta
-orgX = x size of original Image
-orgY = y size of original Image"""
+    """ Performs the Hough-Transformation for each centroid of an Image in the given ImageList\nhough_transform( ImageVector &imgVec, FloatVector *angleRange, int r, float t_precision, int orgX, int orgY )\nimgVec = list of ccs\nangleRange = list of angles ( 0.0 <= theta <= 1.0\nr = radius\nt_precision = steps of theta\norgX = x size of original Image\norgY = y size of original Image"""
     category = "Filter"
     self_type = None
     args = Args( [ImageList("ccsImageList"), FloatVector("angleRange"), Int("r"), Float("t_precision"), Int("orgX"), Int("orgY")] )
@@ -121,7 +146,7 @@ class TextStringSepModule(PluginModule):
     cpp_headers=["hough_transform.hpp"]
     cpp_namespace=["Gamera"]
     functions = [textStringSep,col_comp_grouping,area_ratio_filter,hough_transform] 
-    author = "Your name here"
+    author = "Daniel Esser, Oliver Kriehn"
     url = "Your URL here"
 
 module = TextStringSepModule()
