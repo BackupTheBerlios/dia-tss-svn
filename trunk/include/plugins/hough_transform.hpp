@@ -75,7 +75,7 @@ namespace Gamera {
                     rho = -( rho - houghY );
 
                     // print some values ( for debuging )
-                    printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f precision = %6.3f result = %d\n", x, y, theta, t_precision, rho );
+                    //printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f precision = %6.3f result = %d\n", x, y, theta, t_precision, rho );
 
                     if( ( rho > 0 ) && ( rho <= houghY ) ) {
                         float pixelValue = image->get( Point( (int)theta, rho ) );

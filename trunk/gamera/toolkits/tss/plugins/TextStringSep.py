@@ -15,15 +15,31 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 from gamera.plugin import *
+from gamera import *
+from cmath import *
 import _TextStringSep #import c++ side of the plugin
 import array
 
-def calcMax( img ):
+def drawFoundLines(max, width, height, image):
+    """Draws the lines depending on theta and rho."""
+    for x in max:
+        pixelValue = x[0]
+        theta = x[1]
+        rho = x[2]
+        rTheta = (theta * pi) / 180.0
+        for i in range(image.ncols-1):
+            yCoord = (rho / sin(rTheta)) - ( i * ( cos(rTheta) / sin(rTheta) ) )
+            if int(abs(yCoord)) < image.ncols-1:
+                image.set((i, int(abs(yCoord))), 100 )
+
+    image.display()
+
+def calcMax(img):
     """Searches for maxima in Hough-Space. When found, stores the pixelvalue and the x/y-coordinates."""
     max = [(0.0,0,0),(0.0,0,0),(0.0,0,0)]
     maxima = 0.0
 
-    for x in range(0,5):
+    for x in range(5):
         for y in range(img.nrows):
             if maxima < img.get((x,y)):
                 maxima = img.get((x, y))
@@ -110,6 +126,7 @@ class area_ratio_filter(PluginFunction):
         '''Perform Hough Transformation'''
         testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], 1, 0.3, self.ncols, self.nrows )
         
+        print "|---calulate maxima"
         '''calc maxima in hough-space'''
         max = calcMax( testFloatImage )
         print "maxima (pixelvalue, theta, rho):\n", max
