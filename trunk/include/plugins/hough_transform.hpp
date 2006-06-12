@@ -4,7 +4,7 @@
  * 1. load image and convert to ONEBIT
  * 2. perform cc_analysis on ONEBIT image
  * 3. call hough_transform 
- *      t = tss.plugins.TextStringSep.hough_transform( ccs0, [0.0,270.0], 1, 0.3, 640, 480 )
+ *      t = tss.plugins.TextStringSep.hough_transform( ccs0, [0.0,270.0], 1, 1.0, 640, 480 )
 */
 #ifndef HOUGH_TRANSFORM
 #define HOUGH_TRANSFORM
@@ -27,11 +27,11 @@ namespace Gamera {
         
         // set size for the hough-domain
         int houghX = 360,
-            houghY = (int)( sqrt( ( orgX / 2 ) * ( orgX / 2 ) + ( orgY / 2 ) * ( orgY / 2 ) ) );
+            houghY = orgY;
 
         // create result image
-        fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX + 1, houghY + 1 ) );
-        image->resolution(100);// resolution );
+        fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX, houghY ) );
+        image->resolution(r);
 
         int x = 0,
             y = 0;
@@ -64,20 +64,21 @@ namespace Gamera {
                     rTheta = ( theta * M_PI ) / 180.0f;
                     
                     // calculate rho
-                    dRho = ( ( (double)x - ( (double)orgX / 2.0 ) ) * cos( rTheta ) ) +
-                          ( ( (double)y - ( (double)orgY / 2.0 ) ) * sin( rTheta ) );
+                    dRho = x * cos( rTheta ) + y * sin( rTheta );
+
+                    //dRho /= ( orgY / r );
 
                     rho = (int)dRho;
 
                     if( dRho >= ( rho + 0.5 ) )
                         rho += 1;
 
-                    rho = -( rho - houghY );
+                    //rho = -( rho - houghY );
 
                     // print some values ( for debuging )
-                    //printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f precision = %6.3f result = %d\n", x, y, theta, t_precision, rho );
+                    printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f precision = %6.3f result = %d\n", x, y, theta, t_precision, rho );
 
-                    if( ( rho > 0 ) && ( rho <= houghY ) ) {
+                    if( ( rho >= 0 ) && ( rho < houghY ) ) {
                         float pixelValue = image->get( Point( (int)theta, rho ) );
                         image->set( Point( (int)theta, rho ), ( pixelValue + 10.0 ) );
                     }

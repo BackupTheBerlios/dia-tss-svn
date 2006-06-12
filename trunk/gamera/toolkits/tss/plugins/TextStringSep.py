@@ -108,7 +108,7 @@ class area_ratio_filter(PluginFunction):
         '''discard larger graphics'''
         for cct in ccs_size:
             if cct[0] > (avg_area*5):
-                cct[1].fill_white()
+                ccs.remove(cct[1])
 
         '''calc histogram'''
 #        max_distance = 
@@ -122,16 +122,23 @@ class area_ratio_filter(PluginFunction):
 
         print "Average Area: ", avg_area
 
-        print "|--Hough Transformation"
-        '''Perform Hough Transformation'''
-        testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], 1, 0.3, self.ncols, self.nrows )
-        
-        print "|---calulate maxima"
-        '''calc maxima in hough-space'''
-        max = calcMax( testFloatImage )
-        print "maxima (pixelvalue, theta, rho):\n", max
+        avg_height = 0
+        for i in ccs:
+            avg_height += i.nrows
+        avg_height /= len(ccs)
 
-        testFloatImage.display()
+        print "H_ws = ", avg_height
+            
+#        print "|--Hough Transformation"
+#        '''Perform Hough Transformation'''
+#        testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], (0.2 * avg_height), 0.3, self.ncols, self.nrows )
+        
+#        print "|---calulate maxima"
+#        '''calc maxima in hough-space'''
+#        max = calcMax( testFloatImage )
+#        print "maxima (pixelvalue, theta, rho):\n", max
+
+#        testFloatImage.display()
 
         return ccs
     __call__ = staticmethod(__call__)
