@@ -20,49 +20,6 @@ from cmath import *
 import _TextStringSep #import c++ side of the plugin
 import array
 
-def drawFoundLines(max, width, height, image):
-    """Draws the lines depending on theta and rho."""
-    for x in max:
-        pixelValue = x[0]
-        theta = x[1]
-        rho = x[2]
-        rTheta = (theta * pi) / 180.0
-        for i in range(image.ncols-1):
-            yCoord = (rho / sin(rTheta)) - ( i * ( cos(rTheta) / sin(rTheta) ) )
-            if int(abs(yCoord)) < image.ncols-1:
-                image.set((i, int(abs(yCoord))), 100 )
-
-    image.display()
-
-def calcMax(img):
-    """Searches for maxima in Hough-Space. When found, stores the pixelvalue and the x/y-coordinates."""
-    max = [(0.0,0,0),(0.0,0,0),(0.0,0,0)]
-    maxima = 0.0
-
-    for x in range(5):
-        for y in range(img.nrows):
-            if maxima < img.get((x,y)):
-                maxima = img.get((x, y))
-                max[0] = (maxima, x, y)
-
-    maxima = 0.0
-
-    for x in range(85,95):
-        for y in range(img.nrows):
-            if maxima < img.get((x, y)):
-                maxima = img.get((x, y))
-                max[1] = (maxima, x, y)
-
-    maxima = 0.0
-
-    for x in range(175,180):
-        for y in range(img.nrows):
-            if maxima < img.get((x, y)):
-                maxima = img.get((x, y))
-                max[2] = (maxima, x, y)
-
-    return max
-
 class text_extract(PluginFunction):
     """Separates text from mixed text/graphics images"""
     category = "Filter"
@@ -82,24 +39,7 @@ class textStringSep(PluginFunction):
     pure_python = 1 
     def __call__(self):
         print "Text/String separation started"
-        ccs = self.area_ratio_filter()
-        avg_height = 0
-        for i in ccs:
-            avg_height += i.nrows
-        avg_height /= len(ccs)
-
-        print "H_ws = ", avg_height
-        R = 0.2 * avg_height
-        print "R = ", R
-
-        counter = 0
-#       houghImage = hough_transform(ccs, [0.0, 5.0, 85.0, 95.0, 175.0, 185.0], R, 1.0, self.ncols, self.nrows)
-#        houghImage.save_PNG(r"/home/olzzen/fh/6sem/dia/houghImage.png")
-
-        max = calcMax(houghImage)
-        print "maximas: ", max
-    
-        return houghImage
+        return 0
     __call__ = staticmethod(__call__)
 
 
@@ -110,10 +50,6 @@ class area_ratio_filter(PluginFunction):
     return_type = ImageList("ccs")
     pure_python = 1
     def __call__(self):
-        print "- Starting Area/Ratio-Filter"
-
-        print "|-CC Analysis"
-        '''Connected Component Analysis'''
         ccs = self.cc_analysis()
 
         ccs_size = []
@@ -134,34 +70,6 @@ class area_ratio_filter(PluginFunction):
         for cct in ccs_size:
             if cct[0] > (avg_area*5):
                 ccs.remove(cct[1])
-
-#        '''calc histogram'''
-#        max_distance = 
-#        max_ratio
-
- 
-#        if (length % 2) == 0:
-#            avg_area = length / 2
-#        else:
-#            avg_area = (length+1) / 2
-
-#        avg_height = 0
-#        for i in ccs:
-#            avg_height += i.nrows
-#        avg_height /= len(ccs)
-
-#        print "H_ws = ", avg_height
-            
-#        print "|--Hough Transformation"
-#        '''Perform Hough Transformation'''
-#        testFloatImage = hough_transform( ccs, [0.0,5.0,85.0,95.0,175.0,180.0], (0.2 * avg_height), 0.3, self.ncols, self.nrows )
-        
-#        print "|---calulate maxima"
-#        '''calc maxima in hough-space'''
-#        max = calcMax( testFloatImage )
-#        print "maxima (pixelvalue, theta, rho):\n", max
-
-#        testFloatImage.display()
 
         return ccs
     __call__ = staticmethod(__call__)
@@ -185,7 +93,6 @@ class hough_transform(PluginFunction):
     args = Args( [ImageList("ccsImageList"), Class("resultList", list, False), FloatVector("angleRange"), Float("r"), Float("t_precision"), Int("orgX"), Int("orgY")] )
     return_type = ImageType([FLOAT])
     def __call__( ccsImageList, resultList, angleRange = array.array('f', [0.0, 360.0] ), r = 1.0, t_precision = 1.0, orgX = 0, orgY = 0 ):
-        print type(resultList)
         return _TextStringSep.hough_transform(ccsImageList, resultList, angleRange, r, t_precision, orgX, orgY)
     __call__ = staticmethod(__call__)
 
