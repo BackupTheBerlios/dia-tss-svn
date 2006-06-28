@@ -8,6 +8,7 @@ This module is not strictly necessary.
 """
 from time import sleep
 from sys import stdout, argv, exit
+from os import *
 from cmath import *
 from gamera.core import *
 from gamera.gui import gamera_display
@@ -65,7 +66,7 @@ def calcMax(img, RT_c):
 
     maxima = 0.0
 
-    for x in range(175,180):
+    for x in range(175,181):
         for y in range(img.nrows):
             if maxima <= img.get((x, y)):
                 maxima = img.get((x, y))
@@ -88,13 +89,20 @@ def calcAvgHeight(ccs):
 
     return avg_height
 
-def string_segmentation(args, cluster, ccs, string, groups, H_a, theta, R):
+position = 0
+
+def string_segmentation(args, cluster, ccs, string, groups, H_a, theta, R, hough_image):
+    global position
     """This function should perform the string segmentation."""
 # args contains the position of a cc in the ccs-list belonging to a theta/rho pair
 # cluster contains rho-values building a cluster
-    group = []
+    groups = []
+
+    for g in range(100):
+        groups.append( ("i", [], [], 0) )
+    
     for i in cluster:
-        if i >= 0 and i < R:
+        if i >= 0 and i < hough_image.nrows:
             for n in args[0][theta][i]:
                 rTheta = (theta * pi) / 180
                 #y = -( ( 0 * cos(rTheta) - i ) / sin(rTheta) )
@@ -102,6 +110,24 @@ def string_segmentation(args, cluster, ccs, string, groups, H_a, theta, R):
                 temp_cc = cur_cc
                 if n not in string:
                     string.append(ccs[n])
+
+    for r in cluster:
+        rho = (r - (hough_image.nrows / 2)) * -1 * R
+        print rho
+    
+
+"""    system("mkdir /home/olzzen/fh/6sem/dia/cluster")
+    system("mkdir /home/olzzen/fh/6sem/dia/cluster/cluster%i"%position)
+                    
+    z = 0
+    for i in string:
+        file =  r"/home/olzzen/fh/6sem/dia/cluster/cluster%i/%i.png"%(position,z)
+        i.save_PNG( file ) 
+        z += 1
+    
+    position = position + 1
+"""
+        
 
 def main():
     if len(argv) != 3:
@@ -123,7 +149,7 @@ def main():
     print "R = ", R
     print "Performing hough transformation:"
     args = []
-    floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,185.0],R,1.0,onebit0.ncols,onebit0.nrows)
+    floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
     RT_c = 20
 
     #12
@@ -148,7 +174,7 @@ def main():
                 cluster = []
                 cluster.append(rho)
                 for x in range(1,fclus):
-                    if (x + rho) > int(R):
+                    if (x + rho) > floatImage.nrows:
                         break
                     cluster.append(x+rho)
 
@@ -156,17 +182,19 @@ def main():
                     if (x - rho) < 0:
                         break
                     cluster.append(x-rho)
+
+                #print cluster
                 
                 ##################################################################################
                 # only needed to compute the correct average height of the cc's in the working set
                 cluster_cc_pos_list = []
                 for n in cluster:
-                    if n >= 0 and n <= (int(R) - 1):
+                    if n >= 0 and n <= (floatImage.nrows):
                         for i in args[0][theta][n]:
                             if i not in cluster_cc_pos_list:
                                 cluster_cc_pos_list.append(i)
 
-#                print "clustern: ", cluster_cc_pos_list
+                #print "clustern: ", cluster_cc_pos_list
 
                 cluster_cclist = []
                 for i in cluster_cc_pos_list:
@@ -174,8 +202,9 @@ def main():
                 ##################################################################################
 
                 #6
+                #print "---------------------- ", len(cluster_cclist)
                 H_a = calcAvgHeight(cluster_cclist)
-                print "H_a = ", H_a
+                #print "H_a = ", H_a
 
                 #7 + 8
                 # re-clustering
@@ -183,7 +212,7 @@ def main():
                 cluster = []
                 cluster.append(rho)
                 for x in range(1,fclus):
-                    if (x + rho) > int(R):
+                    if (x + rho) > floatImage.nrows:
                         break
                     cluster.append(x+rho)
 
@@ -196,7 +225,7 @@ def main():
                 # TODO
                 string = []
                 groups = []
-                string_segmentation(args, cluster, ccs, string, groups, H_a, theta, int(R))
+                string_segmentation(args, cluster, ccs, string, groups, H_a, theta, int(R), floatImage)
 
             #11
             RT_c -= 1

@@ -5,6 +5,7 @@
 #define HOUGH_TRANSFORM
 
 #include "gamera.hpp"
+#include <cmath>
 
 namespace Gamera {
 
@@ -18,21 +19,25 @@ namespace Gamera {
         }
 
         // set size for the hough-domain
-        int houghX = 185,
-            houghY = (int)r;
+        int houghX = 181;
+        int houghY = sqrt(pow((double)orgY, 2) + pow((double)orgX, 2)) * sqrt(2) * 2 / r;
+        int midY = houghY / 2; // Ungerade Auflösungen abfangen
+
+        std::cout << "hough_transform.hpp: input image dimension is (" << orgX << "," << orgY << ")" << std::endl;
+        std::cout << "hough_transform.hpp: setting hough domain dimension to (" << houghX << "," << houghY << ")" << std::endl;
 
         // create result image
         fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX, houghY ) );
         image->resolution(1); // which resolution is best???
 
         // create lists
-        PyObject *xList = PyList_New( 185 );
+        PyObject *xList = PyList_New( houghX );
         PyList_Append( resultList, xList );
         
-        for( int i = 0; i < 185; i++) {
-            PyObject *yList = PyList_New( (int)r );
+        for( int i = 0; i < houghX; i++) {
+            PyObject *yList = PyList_New( houghY );
             PyList_SetItem(	xList, i, yList );
-            for( int n = 0; n < (int)r; n++ ) {
+            for( int n = 0; n < houghY; n++) {
                 PyObject *ccList = PyList_New(0);
                 PyList_SetItem( yList, n, ccList );
             }
@@ -71,42 +76,48 @@ namespace Gamera {
 
                     // calculate rho
                     dRho = (double)( (double)x * cos( rTheta ) + (double)y * sin( rTheta ) );
-                    dRho /= orgY;
-                    rho = (int)dRho;
 
-                    if( dRho >= ( rho + 0.5 ) )
-                        rho += 1;
+                    //start modification
+//                    dRho /= houghY;
+//                    dRho *= r;
+                    //end modification
+                    
+                    
+                    rho = (int)(dRho / r);
+                    rho = midY + ( rho * -1);
 
                     // print some values ( for debuging )
-                    //printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f precision = %6.3f result = %d houghY = %d\n", x, y, theta, t_precision, rho, houghY );
+//                    printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f, orig. rho = %6.2f, y = %i\n", x, y, theta, dRho, rho );
 
-                    if( ( rho > 0 ) && ( rho < houghY ) ) {
+                    /*if( dRho >= ( rho + 0.5 ) )
+                        rho += 1;*/
+
                         float pixelValue = image->get( Point( (int)theta, rho ) );
                         image->set( Point( (int)theta, rho ), ( pixelValue + 1.0 ) );
 
                         PyObject* yl = PyList_GetItem( xList, (int) theta );
                         if( yl == NULL )
-                            PyErr_SetString( yl, "error: extracting list for y-coords" );
+                            PyErr_SetString( yl, "yl" );
 
                         PyObject* ccl = PyList_GetItem( yl, rho );
                         if( ccl == NULL )
-                            PyErr_SetString( ccl, "error: extracting list for connected components" );
+                            PyErr_SetString( ccl, "ccl" );
 
                         PyObject* pyLong = PyLong_FromLong(pos);
                         if( pyLong == NULL )
-                            PyErr_SetString( pyLong, "error: converting position to long" );
+                            PyErr_SetString( pyLong, "converting to long" );
 
                         PyList_Append( ccl, PyLong_FromLong(pos));
-                        //printf( "position = %d\n", pos );
-                    }
+//                        printf( "position = %d\n", pos );
                 }
             }
             x = 0;
             y = 0;
         }
-
         return image;
     }
 }
 #endif // declaration end of hough_transform.hpp
+
+
 
