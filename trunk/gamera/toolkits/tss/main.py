@@ -104,17 +104,42 @@ def string_segmentation(args, cluster, ccs, string, groups, H_a, theta, R, hough
     for i in cluster:
         if i >= 0 and i < hough_image.nrows:
             for n in args[0][theta][i]:
-                rTheta = (theta * pi) / 180
-                #y = -( ( 0 * cos(rTheta) - i ) / sin(rTheta) )
-                cur_cc = ccs[n]
-                temp_cc = cur_cc
                 if n not in string:
                     string.append(ccs[n])
 
-    for r in cluster:
-        rho = (r - (hough_image.nrows / 2)) * -1 * R
-        print rho
+    distance = 0
+    distances = []
+    for r in cluster:#rho's
+        rho = abs((r - (hough_image.nrows / 2)) * (-1) * R)
+#        print rho
+        for d in string:#cc's
+            if theta == 0:
+                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_y, 2))))
+#                print "0 degree: distance along the line = ", distance
+            if theta == 90:
+                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_x, 2))))
+#                print "90 degree: distance along the line = ", distance
+            if theta == 180:
+                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_x, 2))))
+#                print "180 degree: distance along the line = ", distance
+            if distance < 0:
+#                print "error: distance < 0, do we search out of the original dimensions?\nexiting.\n"
+                exit(-1)
+            distances.append(distance)
+
+    print "distances: ", distances
+
+    pos = 0
+    for dist in range(len(distances)):
+        for i in range(pos, len(distances)):
+            if distances[i] < distances[dist]:
+                t = distances[i]
+                distances[i] = distances[dist]
+                distances[dist] = t
+        pos += 1
     
+    print "distances (sorted): ", distances
+
 
 """    system("mkdir /home/olzzen/fh/6sem/dia/cluster")
     system("mkdir /home/olzzen/fh/6sem/dia/cluster/cluster%i"%position)
@@ -183,7 +208,7 @@ def main():
                         break
                     cluster.append(x-rho)
 
-                #print cluster
+#                print cluster
                 
                 ##################################################################################
                 # only needed to compute the correct average height of the cc's in the working set
@@ -194,7 +219,7 @@ def main():
                             if i not in cluster_cc_pos_list:
                                 cluster_cc_pos_list.append(i)
 
-                #print "clustern: ", cluster_cc_pos_list
+#                print "clustern: ", cluster_cc_pos_list
 
                 cluster_cclist = []
                 for i in cluster_cc_pos_list:
@@ -202,9 +227,9 @@ def main():
                 ##################################################################################
 
                 #6
-                #print "---------------------- ", len(cluster_cclist)
+#                print "---------------------- ", len(cluster_cclist)
                 H_a = calcAvgHeight(cluster_cclist)
-                #print "H_a = ", H_a
+#                print "H_a = ", H_a
 
                 #7 + 8
                 # re-clustering
@@ -234,7 +259,7 @@ def main():
                 #12
                 # TODO
 
-    floatImage.save_PNG(r"/home/olzzen/houghDomain.png")
+    floatImage.save_PNG(r"/home/olzzen/fh/6sem/dia/houghDomain.png")
  
     print "Draw lines:"
     drawFoundLines(max, onebit0.ncols, onebit0.nrows, output_image, R)
