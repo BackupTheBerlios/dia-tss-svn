@@ -23,8 +23,18 @@ namespace Gamera {
         int houghY = sqrt(pow((double)orgY, 2) + pow((double)orgX, 2)) * sqrt(2) * 2 / r;
         int midY = houghY / 2; // Ungerade Auflösungen abfangen
 
-        std::cout << "hough_transform.hpp: input image dimension is (" << orgX << "," << orgY << ")" << std::endl;
-        std::cout << "hough_transform.hpp: setting hough domain dimension to (" << houghX << "," << houghY << ")" << std::endl;
+//        std::cout << "hough_transform.hpp: input image dimension is (" << orgX << "," << orgY << ")" << std::endl;
+//        std::cout << "hough_transform.hpp: setting hough domain dimension to (" << houghX << "," << houghY << ")" << std::endl;
+//        std::cout << "hough_transform.hpp: calc for (";
+
+        FloatVector::iterator i = angleRange->begin();
+        for (; i != angleRange->end(); i++ ) {
+            std::cout << (*i);
+            if (i != angleRange->end())
+                std::cout << ", ";
+        }
+        std::cout << ")" << std::endl;
+
 
         // create result image
         fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX, houghY ) );
