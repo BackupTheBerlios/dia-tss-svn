@@ -27,6 +27,7 @@ namespace Gamera {
 //        std::cout << "hough_transform.hpp: setting hough domain dimension to (" << houghX << "," << houghY << ")" << std::endl;
 //        std::cout << "hough_transform.hpp: calc for (";
 
+/*
         FloatVector::iterator i = angleRange->begin();
         for (; i != angleRange->end(); i++ ) {
             std::cout << (*i);
@@ -34,11 +35,12 @@ namespace Gamera {
                 std::cout << ", ";
         }
         std::cout << ")" << std::endl;
+*/
 
 
         // create result image
         fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX, houghY ) );
-        image->resolution(1); // which resolution is best???
+        image->resolution(1); // resolution???
 
         // create lists
         PyObject *xList = PyList_New( houghX );
@@ -47,6 +49,7 @@ namespace Gamera {
         for( int i = 0; i < houghX; i++) {
             PyObject *yList = PyList_New( houghY );
             PyList_SetItem(	xList, i, yList );
+
             for( int n = 0; n < houghY; n++) {
                 PyObject *ccList = PyList_New(0);
                 PyList_SetItem( yList, n, ccList );
@@ -86,12 +89,6 @@ namespace Gamera {
 
                     // calculate rho
                     dRho = (double)( (double)x * cos( rTheta ) + (double)y * sin( rTheta ) );
-
-                    //start modification
-//                    dRho /= houghY;
-//                    dRho *= r;
-                    //end modification
-                    
                     
                     rho = (int)(dRho / r);
                     rho = midY + ( rho * -1);
@@ -99,26 +96,23 @@ namespace Gamera {
                     // print some values ( for debuging )
 //                    printf( "(cc)x = %d, (cc)y = %d, theta = %6.3f, orig. rho = %6.2f, y = %i\n", x, y, theta, dRho, rho );
 
-                    /*if( dRho >= ( rho + 0.5 ) )
-                        rho += 1;*/
+                    float pixelValue = image->get( Point( (int)theta, rho ) );
+                    image->set( Point( (int)theta, rho ), ( pixelValue + 1.0 ) );
 
-                        float pixelValue = image->get( Point( (int)theta, rho ) );
-                        image->set( Point( (int)theta, rho ), ( pixelValue + 1.0 ) );
+                    PyObject* yl = PyList_GetItem( xList, (int) theta );
+                    if( yl == NULL )
+                        PyErr_SetString( yl, "yl" );
 
-                        PyObject* yl = PyList_GetItem( xList, (int) theta );
-                        if( yl == NULL )
-                            PyErr_SetString( yl, "yl" );
+                    PyObject* ccl = PyList_GetItem( yl, rho );
+                    if( ccl == NULL )
+                        PyErr_SetString( ccl, "ccl" );
 
-                        PyObject* ccl = PyList_GetItem( yl, rho );
-                        if( ccl == NULL )
-                            PyErr_SetString( ccl, "ccl" );
+                    PyObject* pyLong = PyLong_FromLong(pos);
+                    if( pyLong == NULL )
+                        PyErr_SetString( pyLong, "converting to long" );
 
-                        PyObject* pyLong = PyLong_FromLong(pos);
-                        if( pyLong == NULL )
-                            PyErr_SetString( pyLong, "converting to long" );
-
-                        PyList_Append( ccl, PyLong_FromLong(pos));
-//                        printf( "position = %d\n", pos );
+                    PyList_Append( ccl, PyLong_FromLong(pos));
+//                    printf( "position = %d\n", pos );
                 }
             }
             x = 0;
@@ -128,6 +122,4 @@ namespace Gamera {
     }
 }
 #endif // declaration end of hough_transform.hpp
-
-
 
