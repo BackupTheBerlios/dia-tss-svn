@@ -76,15 +76,16 @@ def calcMax(img, RT_c):
                 if maxima > RT_c:
                     temp_max = (maxima,x,y)
                     max.append(temp_max)
-
     return max
 
 def calcAvgHeight(ccs):
     """Simple function to calculate the average height of a given set of ccs."""
     avg_height = 0
+    
+    for i in ccs:
+        avg_height += i.nrows
 
     cc_count = len(ccs)
-
     if cc_count != 0:
         for i in ccs:
             avg_height += i.nrows
@@ -94,7 +95,6 @@ def calcAvgHeight(ccs):
 
 def compare(x, y):
     tmp = x[2] - y[2]
-    
     if tmp == 0:
         return 0
     if tmp < 0:
@@ -107,6 +107,7 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
     """This function should perform the string segmentation."""
 # args contains the position of a cc in the ccs-list belonging to a theta/rho pair
 # cluster contains rho-values building a cluster
+
     gn = 0
     phrase = 0
     for g in range(100):
@@ -122,6 +123,7 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
     # calculate distance along the line
     distance = 0
     distances = []
+    
     for cc in string:
         hyp = abs(sqrt( pow(cc[0].center_y,2) + pow(cc[0].center_x,2) ))
         distance = abs(sqrt( pow(hyp, 2) - pow(cc[1], 2) ))
@@ -228,38 +230,6 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
             print "Zuviele I's"
 
 
-##        print rho
-#        for d in string:#cc's
-#            if theta == 0:
-#                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_y, 2))))
-##                print "0 degree: distance along the line = ", distance
-#            if theta == 90:
-#                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_x, 2))))
-##                print "90 degree: distance along the line = ", distance
-#            if theta == 180:
-#                distance = int(abs(sqrt(pow(rho, 2) - pow(d.center_x, 2))))
-##                print "180 degree: distance along the line = ", distance
-#            if distance < 0:
-##                print "error: distance < 0, do we search out of the original dimensions?\nexiting.\n"
-#                exit(-1)
-#            distances.append(distance)
-
-   # sortieren
-
-
-"""    system("mkdir /home/olzzen/fh/6sem/dia/cluster")
-    system("mkdir /home/olzzen/fh/6sem/dia/cluster/cluster%i"%position)
-                    
-    z = 0
-    for i in string:
-        file =  r"/home/olzzen/fh/6sem/dia/cluster/cluster%i/%i.png"%(position,z)
-        i.save_PNG( file ) 
-        z += 1
-    
-    position = position + 1
-"""
-        
-
 def main():
     if len(argv) != 3:
         print "to few arguments in call to %s" %argv[0]
@@ -284,7 +254,6 @@ def main():
 
     RT_c = 20
 
-
  
 #    string = []
     groups = []
@@ -301,7 +270,7 @@ def main():
             #4
             # iterate thru peaks in the hough-domain
             for i in max:
-                fclus = 4
+                fclus = 5
                 ftheta = i[1]
                 theta = int(ftheta)
                 rho = i[2]
@@ -369,14 +338,16 @@ def main():
 
                 #9
                 # TODO
+
+                # Reset our information lists
                 string = []
-#                groups = []
-#                phrases = []
+                groups = []
+                phrases = []
                 string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, int(R), floatImage, image0)
 
                 print "Sätze ", phrases
 #                print "Wort Gruppen ", groups
-#                print "Strings ", string
+#               print "Strings ", string
 
                 for p in phrases:
                     for g in p:
@@ -385,12 +356,19 @@ def main():
 
                         if head != None:
                             rand_color = RGBPixel( randrange(0,255), randrange(0,255), randrange(0,255) )
-                            for cc_i in range(head, head+num):
+
+                            for cc_i in range(head, head+num+1):
+
                                 if cc_i < len(string):
                                     cc = string[cc_i][0]
+                                    print cc
                                     image0.highlight(cc, rand_color )
                                     if cc in ccs:
                                         ccs.remove(cc)
+                                    else:
+                                        print "Step 9: CC ", cc, " is not in CC list"
+                                else:
+                                    print "Step 9: OutOfBounds-Error - CC ", cc_i, " does not exist"
 
                 #10
                 args = []
@@ -404,9 +382,9 @@ def main():
     #12
     # TODO
 
-    floatImage.save_PNG(r"/home/olzzen/fh/6sem/dia/houghDomain.png")
-#    onebit0.save_PNG(r"/home/pragma/workspace/svn_dia-tss/out.png")
-    image0.save_PNG(r"/home/olzzen/fh/6sem/dia/out2.png")
+    # DEBUG
+    floatImage.save_PNG(r"houghDomain.png")
+    image0.save_PNG(r"out2.png")
 
 
  
