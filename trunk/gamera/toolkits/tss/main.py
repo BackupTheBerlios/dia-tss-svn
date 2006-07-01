@@ -8,13 +8,15 @@ This module is not strictly necessary.
 """
 from time import sleep
 from sys import stdout, argv, exit
-from os import *
 from cmath import *
 from gamera.core import *
 from gamera.gui import gamera_display
 from math import *
 from random import *
 from time import *
+import gc
+import pdb
+import os
 
 def drawFoundLines(max, width, height, output_image, R):
     """Draws the lines dependent on theta and rho of the found maximas."""
@@ -176,10 +178,8 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
     for cc_i in range(len(string)):
         str = string[cc_i]
 
-        print str[4]
-
         # check edge to edge distance against the local inter character gap threshold
-        if str[4] <= str[3] and str[4] != None: # D_e <= T_c
+        if str[4] != None and str[4] <= str[3]: # D_e <= T_c
 
             # now we know that character i and i+1 belongs to the same word group
             # so we add it to the same word group
@@ -200,13 +200,11 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
             # so we finish the current word group and fill the phrase list
             if str[4] < Tw or str[4] == None: # De < Tw
 
-                print "Wortgruppe komplett"
-
                 if len(phrases) == 0:
                     phrases.append([])
                 phrases[-1].append( groups[gn-1] )
-                phrases[-1].append( groups[gn] )
-                groups[gn][0] = 'p' #Zum Test auskommentiert
+#                phrases[-1].append( groups[gn] )
+#                groups[gn][0] = 'p' #Zum Test auskommentiert
                 groups[gn-1][0] = 'p'
 
             else:
@@ -237,32 +235,39 @@ def main():
         exit(-1)
     init_gamera()
     from gamera.toolkits import tss
+
     input_image = argv[1]
     output_image = argv[2]
+
+    # load image
     image0 = load_image(r"%s"%input_image)
+
+    # convert it to onebit
     onebit0 = image0.to_onebit()
+    onebit0.despeckle(3)
+
     print "Performing area ratio filter:"
     ccs = onebit0.area_ratio_filter()
+
     avg_height = calcAvgHeight(ccs)
+
     print "Average Heigth of all remaining ccs = ", avg_height
     R = 0.2 * avg_height
+    
     count = 0
     print "R = ", R
-    print "Performing hough transformation:"
+
     args = []
     floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
+    print "Performing hough transformation: ", len(ccs), " connected components remaining"
 
     RT_c = 20
-
  
-#    string = []
-    groups = []
-    phrases = []
     #12
-    while count != 1:
+    while count <= 1:
         #11
         while RT_c > 2:
-            print "Calculate maximas:"
+            print "--------------------------------- ", RT_c
             max = calcMax(floatImage, RT_c)
             if len(max) != 0:
                 print "found maximas: ", max
@@ -307,6 +312,10 @@ def main():
                 for i in cluster_cc_pos_list:
                     cluster_cclist.append(ccs[i])
 
+                # free list memory
+#                cluster = None
+#                cluster_cc_pos_list = None
+
 
                 #print "clustern: ", cluster_cclist
                 ##################################################################################
@@ -345,9 +354,11 @@ def main():
                 phrases = []
                 string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, int(R), floatImage, image0)
 
-                print "Sätze ", phrases
+                # free memory
+            #cluster = None
+
+#                print "Sätze ", phrases
 #                print "Wort Gruppen ", groups
-#               print "Strings ", string
 
                 for p in phrases:
                     for g in p:
@@ -361,7 +372,6 @@ def main():
 
                                 if cc_i < len(string):
                                     cc = string[cc_i][0]
-                                    print cc
                                     image0.highlight(cc, rand_color )
                                     if cc in ccs:
                                         ccs.remove(cc)
@@ -369,15 +379,39 @@ def main():
                                         print "Step 9: CC ", cc, " is not in CC list"
                                 else:
                                     print "Step 9: OutOfBounds-Error - CC ", cc_i, " does not exist"
+                    
+                # free memory
+#                string = None
+#                phrases = None
+#                groups = None
+
+                print "After String Segmentation ", len(ccs), " connected components remaining"
 
                 #10
                 args = []
+                
+
+                os.system("free -m")
+                del floatImage
+                gc.collect()
+                os.system("free -m")
+ 
                 floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
-                            
+                os.system("free -m")
+                os.system("read")
+
+                           
+
             #11
             RT_c -= 1
             #floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
-        count = 1
+        count += 1
+        if count == 1:
+            args = []
+            RT_c = 20
+            floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
+
+
 
     #12
     # TODO
@@ -385,6 +419,9 @@ def main():
     # DEBUG
     floatImage.save_PNG(r"houghDomain.png")
     image0.save_PNG(r"out2.png")
+
+    print "-----------------------------------------------------"
+
 
 
  

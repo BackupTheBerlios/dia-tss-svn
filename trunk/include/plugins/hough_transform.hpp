@@ -40,7 +40,7 @@ namespace Gamera {
 
         // create result image
         fact_type::image_type *image = fact_type::create( Point( 0, 0 ), Dim( houghX, houghY ) );
-        image->resolution(1); // resolution???
+        image->resolution( (houghX + houghY) / 2.0 ); // resolution???
 
         // create lists
         PyObject *xList = PyList_New( houghX );
