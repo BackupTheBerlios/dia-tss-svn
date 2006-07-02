@@ -28,7 +28,7 @@ def calcMax(img, RT_c, angleRange):
     temp_max = (0.0,0,0)
     maxima = 0.0
 
-    for theta in range(len(angleRange)-1):
+    for theta in range(0,len(angleRange),2):
         if theta+1 >= len(angleRange):
             break
         startAngle = angleRange[theta]
@@ -41,7 +41,6 @@ def calcMax(img, RT_c, angleRange):
                     if maxima > RT_c:
                         temp_max = (maxima, x, y)
                         max.append(temp_max)
-        theta += 1
 
     return max
 
