@@ -247,7 +247,7 @@ def main():
     else:
         onebit0 = image0
 
-    onebit0.despeckle(3)
+    onebit0.despeckle(8)
 
     ccs = onebit0.area_ratio_filter()
 
