@@ -111,13 +111,16 @@ namespace Gamera {
                     if( pyLong == NULL )
                         PyErr_SetString( pyLong, "converting to long" );
 
-                    PyList_Append( ccl, PyLong_FromLong(pos));
+                    PyList_Append( ccl, pyLong ); Py_DECREF(pyLong);
 //                    printf( "position = %d\n", pos );
                 }
             }
             x = 0;
             y = 0;
         }
+
+        Py_DECREF(xList);
+
         return image;
     }
 }

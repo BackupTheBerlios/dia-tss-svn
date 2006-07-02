@@ -381,24 +381,29 @@ def main():
                                     print "Step 9: OutOfBounds-Error - CC ", cc_i, " does not exist"
                     
                 # free memory
-#                string = None
-#                phrases = None
-#                groups = None
+                del string
+                del phrases
+                del groups
+
+                string = None
+                phrases = None
+                groups = None
 
                 print "After String Segmentation ", len(ccs), " connected components remaining"
 
                 #10
-                args = []
-                
 
-                os.system("free -m")
+ #               os.system("free -m")
                 del floatImage
-                gc.collect()
+                del args
+#                print gc.collect()
                 os.system("free -m")
+
+                args = []
  
                 floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
                 os.system("free -m")
-                os.system("read")
+#                os.system("read")
 
                            
 
