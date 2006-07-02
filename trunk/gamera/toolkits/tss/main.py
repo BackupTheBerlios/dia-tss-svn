@@ -51,7 +51,7 @@ def calcMax(img, RT_c):
     temp_max = (0.0,0,0)
     maxima = 0.0
 
-    for x in range(0,5):
+    for x in range(0,180):
         for y in range(img.nrows):
             if maxima <= img.get((x,y)):
                 maxima = img.get((x, y))
@@ -59,25 +59,25 @@ def calcMax(img, RT_c):
                     temp_max = (maxima, x, y)
                     max.append(temp_max)
 
-    maxima = 0.0
+    #maxima = 0.0
 
-    for x in range(85,95):
-        for y in range(img.nrows):
-            if maxima <= img.get((x, y)):
-                maxima = img.get((x, y))
-                if maxima > RT_c:
-                    temp_max = (maxima,x,y)
-                    max.append(temp_max)
+    #for x in range(85,95):
+    #    for y in range(img.nrows):
+    #        if maxima <= img.get((x, y)):
+    #            maxima = img.get((x, y))
+    #            if maxima > RT_c:
+    #                temp_max = (maxima,x,y)
+    #                max.append(temp_max)
 
-    maxima = 0.0
+    #maxima = 0.0
 
-    for x in range(175,181):
-        for y in range(img.nrows):
-            if maxima <= img.get((x, y)):
-                maxima = img.get((x, y))
-                if maxima > RT_c:
-                    temp_max = (maxima,x,y)
-                    max.append(temp_max)
+    #for x in range(175,181):
+    #    for y in range(img.nrows):
+    #        if maxima <= img.get((x, y)):
+    #            maxima = img.get((x, y))
+    #            if maxima > RT_c:
+    #                temp_max = (maxima,x,y)
+    #                max.append(temp_max)
     return max
 
 def calcAvgHeight(ccs):
@@ -242,11 +242,13 @@ def main():
     # load image
     image0 = load_image(r"%s"%input_image)
 
-    # convert it to onebit
-    onebit0 = image0.to_onebit()
+    if image0.pixel_type_name != "OneBit":
+        onebit0 = image0.to_onebit()
+    else:
+        onebit0 = image0
+
     onebit0.despeckle(3)
 
-    print "Performing area ratio filter:"
     ccs = onebit0.area_ratio_filter()
 
     avg_height = calcAvgHeight(ccs)
@@ -372,7 +374,8 @@ def main():
 
                                 if cc_i < len(string):
                                     cc = string[cc_i][0]
-                                    image0.highlight(cc, rand_color )
+                                    #image0.highlight(cc, rand_color)
+                                    cc.fill_white()
                                     if cc in ccs:
                                         ccs.remove(cc)
                                     else:
@@ -393,28 +396,22 @@ def main():
 
                 #10
 
- #               os.system("free -m")
                 del floatImage
                 del args
-#                print gc.collect()
-                os.system("free -m")
 
                 args = []
  
                 floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
-                os.system("free -m")
-#                os.system("read")
-
-                           
 
             #11
             RT_c -= 1
-            #floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
+
         count += 1
         if count == 1:
             args = []
             RT_c = 20
             floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
+            floatImage.save_PNG(r"float.png")
 
 
 
@@ -422,14 +419,10 @@ def main():
     # TODO
 
     # DEBUG
-    floatImage.save_PNG(r"houghDomain.png")
-    image0.save_PNG(r"out2.png")
+#    floatImage.save_PNG(r"houghDomain.png")
+#    image0.save_PNG(r"out2.png")
+    onebit0.save_PNG(r"grafik.png")
 
-    print "-----------------------------------------------------"
-
-
-
- 
 #    print "Draw lines:"
 #    drawFoundLines(max, onebit0.ncols, onebit0.nrows, output_image, R)
 
