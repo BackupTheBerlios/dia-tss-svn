@@ -18,66 +18,27 @@ import gc
 import pdb
 import os
 
-def drawFoundLines(max, width, height, output_image, R):
-    """Draws the lines dependent on theta and rho of the found maximas."""
-    yCoord = 0
-    image = Image((0, 0), Dim(width, height), ONEBIT, DENSE)
-
-    print "Drawing lines for:"
-
-    for x in max:
-        pixelValue = x[0]
-        theta = x[1]
-        rho = x[2]
-        rTheta = (theta * pi) / 180
-
-        print "theta = %f" %theta, " rho = %f" %rho
-
-        if (theta == 0 or theta == 180) and rho >= 0:
-            for y in range(image.nrows-1):
-                image.set( (rho, y), 1 )
-
-        for i in range(image.ncols-1):
-            if theta > 0 and theta < 180:
-                yCoord = (rho / sin(rTheta)) - ( i * ( cos(rTheta) / sin(rTheta) ) ) - height / R
-                if int(abs(yCoord)) < image.nrows-1:
-                    image.set( (i, int(abs(yCoord))), 1 )
-
-    image.save_PNG( r"%s"%output_image )
-
-def calcMax(img, RT_c):
-    """Searches for maxima in Hough-Space. When found, stores the pixelvalue and the x/y-coordinates."""
+def calcMax(img, RT_c, angleRange):
+    """Detects the maxima in the hough-domain. Stores values of the found maximas and the corresponding x-, y-Coords."""
     max = []
     temp_max = (0.0,0,0)
     maxima = 0.0
 
-    for x in range(0,180):
-        for y in range(img.nrows):
-            if maxima <= img.get((x,y)):
-                maxima = img.get((x, y))
-                if maxima > RT_c:
-                    temp_max = (maxima, x, y)
-                    max.append(temp_max)
+    for theta in range(len(angleRange)-1):
+        if theta+1 >= len(angleRange):
+            break
+        startAngle = angleRange[theta]
+        endAngle = angleRange[theta+1]
+        print "starting at: ", startAngle, "ending at: ", endAngle
+        for x in range(startAngle,endAngle):
+            for y in range(img.nrows):
+                if maxima <= img.get((x,y)):
+                    maxima = img.get((x, y))
+                    if maxima > RT_c:
+                        temp_max = (maxima, x, y)
+                        max.append(temp_max)
+        theta += 1
 
-    #maxima = 0.0
-
-    #for x in range(85,95):
-    #    for y in range(img.nrows):
-    #        if maxima <= img.get((x, y)):
-    #            maxima = img.get((x, y))
-    #            if maxima > RT_c:
-    #                temp_max = (maxima,x,y)
-    #                max.append(temp_max)
-
-    #maxima = 0.0
-
-    #for x in range(175,181):
-    #    for y in range(img.nrows):
-    #        if maxima <= img.get((x, y)):
-    #            maxima = img.get((x, y))
-    #            if maxima > RT_c:
-    #                temp_max = (maxima,x,y)
-    #                max.append(temp_max)
     return max
 
 def calcAvgHeight(ccs):
@@ -96,6 +57,7 @@ def calcAvgHeight(ccs):
     return avg_height
 
 def compare(x, y):
+    """Simple function to compare two values."""
     tmp = x[2] - y[2]
     if tmp == 0:
         return 0
@@ -105,7 +67,7 @@ def compare(x, y):
         return int(ceil(tmp))
 
 
-def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, R, hough_image, image):
+def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, R, hough_image):
     """This function should perform the string segmentation."""
 # args contains the position of a cc in the ccs-list belonging to a theta/rho pair
 # cluster contains rho-values building a cluster
@@ -125,13 +87,12 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
     # calculate distance along the line
     distance = 0
     distances = []
-    
     for cc in string:
         hyp = abs(sqrt( pow(cc[0].center_y,2) + pow(cc[0].center_x,2) ))
         distance = abs(sqrt( pow(hyp, 2) - pow(cc[1], 2) ))
         cc[2] = distance
 
-    # sort ccs corresponding to their distnace along the line
+    # sort ccs corresponding to their distance along the line
     string.sort(cmp=compare)
 
     # form cluster
@@ -178,6 +139,8 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
     for cc_i in range(len(string)):
         str = string[cc_i]
 
+        #print str[4]
+
         # check edge to edge distance against the local inter character gap threshold
         if str[4] != None and str[4] <= str[3]: # D_e <= T_c
 
@@ -210,14 +173,6 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
             else:
                 phrases.append([])
 
-    """    gcount = randrange(0,255)
-    farbe = RGBPixel(randrange(0,255), randrange(0,255), randrange(0,255))
-    if groups[0][1] != None and groups[0][2] != None:
-        for cci in range(groups[0][1], groups[0][2]):
-            image.highlight(ccs[cci], farbe)
-    """
-
-
     for p in phrases:
         i = 0
         for g in p:
@@ -226,7 +181,6 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
 
         if i > 2:
             print "Zuviele I's"
-
 
 def main():
     if len(argv) != 3:
@@ -250,12 +204,10 @@ def main():
     onebit0.despeckle(8)
 
     ccs = onebit0.area_ratio_filter()
-
     avg_height = calcAvgHeight(ccs)
-
     print "Average Heigth of all remaining ccs = ", avg_height
-    R = 0.2 * avg_height
-    
+
+    R = floor(0.5 * avg_height)
     count = 0
     print "R = ", R
 
@@ -264,13 +216,12 @@ def main():
     print "Performing hough transformation: ", len(ccs), " connected components remaining"
 
     RT_c = 20
- 
     #12
     while count <= 1:
         #11
         while RT_c > 2:
             print "--------------------------------- ", RT_c
-            max = calcMax(floatImage, RT_c)
+            max = calcMax(floatImage, RT_c, [0,5,85,95,175,180])
             if len(max) != 0:
                 print "found maximas: ", max
 
@@ -337,7 +288,7 @@ def main():
 
                 for x in range(1,fclus):
                     if (x + rho) > floatImage.nrows:
-                        breakx
+                        break
                     cluster.append(x+rho)
 
                 for x in range(1,fclus):
@@ -354,11 +305,10 @@ def main():
                 string = []
                 groups = []
                 phrases = []
-                string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, int(R), floatImage, image0)
+                string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, int(R), floatImage)
 
                 # free memory
             #cluster = None
-
 #                print "Sätze ", phrases
 #                print "Wort Gruppen ", groups
 
@@ -374,6 +324,8 @@ def main():
 
                                 if cc_i < len(string):
                                     cc = string[cc_i][0]
+                                    #print cc
+                                    image0.highlight(cc, RGBPixel(200,200,200) )
                                     #image0.highlight(cc, rand_color)
                                     cc.fill_white()
                                     if cc in ccs:
@@ -400,7 +352,6 @@ def main():
                 del args
 
                 args = []
- 
                 floatImage = tss.plugins.TextStringSep.hough_transform(ccs, args, [0.0,5.0,85.0,95.0,175.0,180.0],R,1.0,onebit0.ncols,onebit0.nrows)
 
             #11
