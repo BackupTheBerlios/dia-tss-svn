@@ -23,12 +23,8 @@ from gamera.toolkits.tss.plugins import TextStringSep
 # should be the same as the menu item, prefixed by '_On'
 # and with all spaces converted to underscores.
 class TssMenu(toolkit.CustomMenu):
-    _items = ["Tss Toolkit",
-              "Tss Toolkit 2"]
+    _items = ["Tss Toolkit"]
     def _OnTss_Toolkit(self, event):
         wxMessageDialog(None, "You clicked on Tss Toolkit!").ShowModal()
-        main.main()
-    def _OnTss_Toolkit_2(self, event):
-        wxMessageDialog(None, "You clicked on Tss Toolkit 3!").ShowModal()
         main.main()
 tss_menu = TssMenu()

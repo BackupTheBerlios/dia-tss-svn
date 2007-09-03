@@ -19,7 +19,10 @@ import pdb
 import os
 
 def calcMax(img, RT_c, angleRange):
-    """Detects the maxima in the hough-domain. Stores values of the found maximas and the corresponding x-, y-Coords."""
+    """
+    Detects the maxima in the hough-domain and 
+    stores values of the found maximas and the corresponding x-, y-Coords.
+    """
     max = []
     temp_max = (0.0,0,0)
     maxima = 0.0
@@ -42,7 +45,9 @@ def calcMax(img, RT_c, angleRange):
     return max
 
 def calcAvgHeight(ccs):
-    """Simple function to calculate the average height of a given set of CC's."""
+    """
+    Calculates the average height of a given set of CC's.
+    """
     avg_height = 0
     
     for i in ccs:
@@ -57,7 +62,9 @@ def calcAvgHeight(ccs):
     return avg_height
 
 def compare(x, y):
-    """Simple function to compute the difference between two values."""
+    """
+    Computes the difference between two values.
+    """
     tmp = x[2] - y[2]
     if tmp == 0:
         return 0
@@ -68,7 +75,9 @@ def compare(x, y):
 
 
 def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta, R, hough_image):
-    """Inserts CC's depending on their height, the distance to their neighbors and their orientation along the line into words and those words into phrases."""
+    """
+    Inserts CC's depending on their height, the distance to their neighbors and their orientation
+    along the line into words and those words into phrases."""
 # args contains the position of a cc in the ccs-list belonging to a theta/rho pair
 # cluster contains rho-values building a cluster
     gn = 0
@@ -178,13 +187,14 @@ def string_segmentation(args, cluster, ccs, string, groups, phrases, H_a, theta,
             if g[0] == 'i':
                 i += 1
         if i > 2:
-            print "Zuviele I's"
+            print "too much I's..."
 
 def main():
     if len(argv) != 3:
         print "to few arguments in call to %s" %argv[0]
         print "usage: %s input.png output.png" %argv[0]
         exit(-1)
+
     init_gamera()
     from gamera.toolkits import tss
 
@@ -201,6 +211,11 @@ def main():
 
     ccs = onebit0.area_ratio_filter()
     avg_height = calcAvgHeight(ccs)
+
+    if avg_height <= 0:
+        print "error: average height of components smaller/equal '0'..."
+        exit(-1)
+
     R = 0.5 * avg_height
     count = 0
 

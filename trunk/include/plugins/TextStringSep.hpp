@@ -5,14 +5,19 @@
 
 namespace Gamera {
 
-  /* This is a very simple plugin that simply fills the image with white
+    /*
+     * This implements the Gamera plugin for Text-String-Separation.
+     *
+     * See the Gamera plugin documentation for more information on how
+     * to use this plugin.
+     *
+     * See the Gamera plugin documentation for more information on how to
+     * write Gamera plugins.
+    */
 
-     See the Gamera plugin documentation for more information on how to
-     write Gamera plugins.
-   */
     template<class T>
     float textStringSep(T& image) {
-//    std::fill(image.vec_begin(), image.vec_end(), white(image));
+        // std::fill(image.vec_begin(), image.vec_end(), white(image));
         return 0;
     }
 }
